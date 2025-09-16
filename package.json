@@ -1,0 +1,51 @@
+{
+  "name": "xeno-shopify-service",
+  "version": "1.0.0",
+  "description": "Multi-tenant Shopify Data Ingestion & Insights Service",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "start": "node server/index.js",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "setup-shopify": "node setup-shopify.js",
+    "setup-sqlite": "node setup-sqlite.js",
+    "complete-setup": "node complete-setup.js",
+    "test-shopify": "node -e \"require('./server/scripts/setup-demo-tenant').testShopifyConnection().then(() => process.exit(0)).catch(() => process.exit(1))\"",
+    "test-data": "node test-shopify-data.js",
+    "install-mysql": "install-mysql.bat"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.2.1",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.6.5",
+    "node-cron": "^3.0.3",
+    "sequelize": "^6.35.2",
+    "sqlite3": "^5.1.7",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2",
+    "sequelize-cli": "^6.6.2"
+  },
+  "keywords": [
+    "shopify",
+    "multi-tenant",
+    "data-ingestion",
+    "analytics"
+  ],
+  "author": "Xeno Assignment",
+  "license": "MIT"
+}
