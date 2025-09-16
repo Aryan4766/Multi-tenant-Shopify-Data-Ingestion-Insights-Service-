@@ -17,8 +17,17 @@ let PORT = parseInt(process.env.PORT, 10) || 5000;
 
 // Security middleware
 app.use(helmet());
+// Flexible CORS: allow single origin via CLIENT_URL or comma-separated list via ALLOWED_ORIGINS
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',')
+  .map((o) => o.trim());
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('CORS not allowed from this origin'));
+  },
   credentials: true
 }));
 

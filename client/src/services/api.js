@@ -11,7 +11,8 @@ const inferLocalApi = () => {
   return 'http://localhost:5002/api';
 };
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || inferLocalApi();
+// Prefer explicit env var in production; fall back to local inference
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_URL || inferLocalApi();
 
 // Create axios instance
 const api = axios.create({
