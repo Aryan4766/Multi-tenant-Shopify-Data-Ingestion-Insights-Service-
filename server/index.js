@@ -14,6 +14,7 @@ const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 let PORT = parseInt(process.env.PORT, 10) || 5000;
+const SHOULD_SYNC = (process.env.DB_SYNC === 'true') || (process.env.NODE_ENV === 'development');
 
 // Security middleware
 app.use(helmet());
@@ -83,43 +84,44 @@ app.use('*', (req, res) => {
 
 // Database connection and server startup
 async function startServer() {
-  try {
-    // Test database connection
-    await sequelize.authenticate();
-    logger.info('Database connection established successfully');
+  // Start server first so platform detects the port, then init DB in background
+  const startListening = (portToTry) => {
+    const server = app
+      .listen(portToTry, () => {
+        PORT = portToTry;
+        logger.info(`Server running on port ${PORT}`);
+        logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      })
+      .on('error', (err) => {
+        if (err && err.code === 'EADDRINUSE') {
+          const nextPort = portToTry + 1;
+          logger.error(`Port ${portToTry} in use, retrying on ${nextPort}...`);
+          startListening(nextPort);
+        } else {
+          logger.error('Failed to bind server port:', err);
+          process.exit(1);
+        }
+      });
+    return server;
+  };
 
-    // Sync database (create tables if they don't exist)
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync();
-      logger.info('Database synchronized');
+  startListening(PORT);
+
+  // Initialize database asynchronously
+  (async () => {
+    try {
+      await sequelize.authenticate();
+      logger.info('Database connection established successfully');
+
+      if (SHOULD_SYNC) {
+        await sequelize.sync();
+        logger.info('Database synchronized');
+      }
+    } catch (error) {
+      // Do not crash the server; log and keep serving health/errors
+      logger.error('Database initialization failed:', error);
     }
-
-    // Start server with automatic port fallback when in use
-    const startListening = (portToTry) => {
-      const server = app
-        .listen(portToTry, () => {
-          PORT = portToTry;
-          logger.info(`Server running on port ${PORT}`);
-          logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-        })
-        .on('error', (err) => {
-          if (err && err.code === 'EADDRINUSE') {
-            const nextPort = portToTry + 1;
-            logger.error(`Port ${portToTry} in use, retrying on ${nextPort}...`);
-            startListening(nextPort);
-          } else {
-            logger.error('Failed to bind server port:', err);
-            process.exit(1);
-          }
-        });
-      return server;
-    };
-
-    startListening(PORT);
-  } catch (error) {
-    logger.error('Failed to start server:', error);
-    process.exit(1);
-  }
+  })();
 }
 
 // Graceful shutdown
