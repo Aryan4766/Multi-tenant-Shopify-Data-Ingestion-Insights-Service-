@@ -26,7 +26,16 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL ||
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    const isAllowed = allowedOrigins.some((entry) => {
+      if (!entry) return false;
+      if (entry === '*') return true;
+      if (entry.startsWith('*.')) {
+        const suffix = entry.slice(1); // remove leading '*'
+        return origin.endsWith(suffix);
+      }
+      return origin === entry;
+    });
+    if (isAllowed) return callback(null, true);
     return callback(new Error('CORS not allowed from this origin'));
   },
   credentials: true
