@@ -10,7 +10,6 @@ function Register() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    tenantId: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -126,29 +125,7 @@ function Register() {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="tenantId" className="label">
-                Tenant ID
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Building className="h-5 w-5 text-secondary-400" />
-                </div>
-                <input
-                  id="tenantId"
-                  name="tenantId"
-                  type="number"
-                  required
-                  className="input pl-10"
-                  placeholder="Enter tenant ID"
-                  value={formData.tenantId}
-                  onChange={handleChange}
-                />
-              </div>
-              <p className="mt-1 text-xs text-secondary-500">
-                Contact your administrator for the tenant ID
-              </p>
-            </div>
+            {/* Tenant ID removed from sign up. Tenants are created after login. */}
 
             <div>
               <label htmlFor="password" className="label">
