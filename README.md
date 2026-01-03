@@ -1,4 +1,4 @@
-# Xeno - Multi-tenant Shopify Data Ingestion & Insights Service
+# Multi-tenant Shopify Data Ingestion & Insights Service
 
 A comprehensive multi-tenant platform that helps enterprise retailers onboard, integrate, and analyze their customer data from Shopify stores.
 
